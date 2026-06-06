@@ -10,9 +10,10 @@ const connectDB = async () => {
       return null;
     }
 
+    // Configure MongoMemoryServer to use /tmp on Vercel (read-only filesystem workaround)
     if (process.env.VERCEL) {
-      console.log('⚠️ Warning: MONGO_URI is not set in Vercel environment.');
-      return null; // Don't crash vercel deploy
+      process.env.MONGOMS_DOWNLOAD_DIR = '/tmp';
+      process.env.MONGOMS_PREFER_GLOBAL_PATH = 'true';
     }
 
     // Use in-memory MongoDB for zero-setup development
