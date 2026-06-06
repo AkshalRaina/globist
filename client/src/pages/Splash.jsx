@@ -24,56 +24,22 @@ export default function Splash() {
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
-          background: 'linear-gradient(160deg, #0a1a0a 0%, #1a3a1a 40%, #0a2a1a 100%)',
+          background: "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80') center/cover",
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-end',
           padding: '32px 28px',
         }}
       >
-        {/* Radial glow */}
+        {/* Dark overlay for readability */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background:
-              'radial-gradient(ellipse at 60% 30%, rgba(245,166,35,.15) 0%, transparent 60%)',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%)',
+            zIndex: 1
           }}
         />
-
-        {/* Mountain shapes */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '35%',
-            left: 0,
-            right: 0,
-            height: 200,
-            zIndex: 0,
-            background: 'linear-gradient(180deg, transparent, #1a3a1a 80%)',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              borderLeft: '90px solid transparent',
-              borderRight: '90px solid transparent',
-              borderBottom: '140px solid #2a5a2a',
-              bottom: 0,
-              left: 30,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              borderLeft: '120px solid transparent',
-              borderRight: '120px solid transparent',
-              borderBottom: '180px solid #1a4a1a',
-              bottom: 0,
-              left: 100,
-            }}
-          />
-        </div>
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2 }}>

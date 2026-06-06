@@ -267,14 +267,14 @@ textarea.input { resize: none; line-height: 1.5; }
    ═══════════════════════════════════════ */
 .img-placeholder { background: linear-gradient(135deg, #2a4a3a 0%, #1a3a2a 50%, #0a2a1a 100%); position: relative; overflow: hidden; }
 .img-placeholder::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,.5) 100%); }
-.img-mountain { background: linear-gradient(135deg, #4a7a9b 0%, #2c5f7a 40%, #1a3a5a 100%); }
-.img-valley { background: linear-gradient(135deg, #3a7a4a 0%, #2a5a3a 50%, #1a4a2a 100%); }
-.img-desert { background: linear-gradient(135deg, #c9a96e 0%, #a07840 50%, #7a5a20 100%); }
-.img-snow { background: linear-gradient(135deg, #8ab4cc 0%, #6090b0 40%, #2a5a7a 100%); }
-.img-jungle { background: linear-gradient(135deg, #2d7a3a 0%, #1d5a2a 50%, #0d3a1a 100%); }
-.img-beach { background: linear-gradient(135deg, #4ab8c8 0%, #2a90a8 40%, #1a7090 100%); }
-.img-luxury { background: linear-gradient(135deg, #8a6a3a 0%, #6a4a20 50%, #4a2a10 100%); }
-.img-dark { background: linear-gradient(135deg, #1a2a3a 0%, #0a1a2a 100%); }
+.img-mountain { background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-valley { background: url('https://images.unsplash.com/photo-1470071131384-001b85755536?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-desert { background: url('https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-snow { background: url('https://images.unsplash.com/photo-1478265409131-1f65c88f965c?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-jungle { background: url('https://images.unsplash.com/photo-1518182170546-076616fdfaaf?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-beach { background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-luxury { background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80') center/cover; }
+.img-dark { background: url('https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1200&q=80') center/cover; }
 
 /* ═══════════════════════════════════════
    SEARCH BAR
