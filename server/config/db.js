@@ -1,11 +1,22 @@
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
 let mongod = null;
 
 const connectDB = async () => {
   try {
+    if (process.env.MONGO_URI) {
+      await mongoose.connect(process.env.MONGO_URI);
+      console.log(`✅ MongoDB connected: Cloud`);
+      return null;
+    }
+
+    if (process.env.VERCEL) {
+      console.log('⚠️ Warning: MONGO_URI is not set in Vercel environment.');
+      return null; // Don't crash vercel deploy
+    }
+
     // Use in-memory MongoDB for zero-setup development
+    const { MongoMemoryServer } = require('mongodb-memory-server');
     mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
     
@@ -15,7 +26,7 @@ const connectDB = async () => {
     return mongod;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
+    if (!process.env.VERCEL) process.exit(1);
   }
 };
 
