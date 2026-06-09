@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-verify:
+    name: Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci || npm install
+
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm ci || npm install
+
+      - name: Verify Client Build
+        working-directory: ./client
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # VITE_ variables would go here if needed during build
+
+      - name: Verification Complete
+        run: echo "Codebase verified successfully! Proceeding to Vercel CD."
