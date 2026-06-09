@@ -16,12 +16,7 @@ export default function StatusBar({ light = false, transparent = false }) {
 
   return (
     <div className="status-bar" style={style}>
-      <span className="status-time" style={{ color: textColor }}>
-        9:41
-      </span>
-      <div className="status-icons" style={{ color: textColor }}>
-        📶 🔋
-      </div>
+      <div style={{ width: 40 }} />
     </div>
   );
 }
