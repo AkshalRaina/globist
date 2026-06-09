@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import StatusBar from '../components/StatusBar.jsx';
 import BottomNav from '../components/BottomNav.jsx';
 
 const categories = ['All', 'Treks', 'Luxury Stays', 'City Tours', 'Adventure', 'Spiritual'];
@@ -22,8 +21,7 @@ export default function Explore() {
 
   return (
     <div className="screen active">
-      <StatusBar />
-      <div className="scroll-area">
+            <div className="scroll-area">
         <div style={{ padding: '8px 20px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div className="h2">Explore</div>

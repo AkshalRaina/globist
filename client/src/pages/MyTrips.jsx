@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import StatusBar from '../components/StatusBar.jsx';
 import BottomNav from '../components/BottomNav.jsx';
 
 export default function MyTrips() {
@@ -33,8 +32,7 @@ export default function MyTrips() {
 
   return (
     <div className="screen active">
-      <StatusBar />
-      <div style={{ padding: '4px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '4px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="h2">My Trips</div>
         <div className="avatar-sm" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
           {user?.name?.[0] || 'A'}<div className="online-dot" />

@@ -51,7 +51,7 @@ export default function Reels() {
     <div className="screen active" style={{ background: '#000', position: 'relative' }}>
       {/* Status bar */}
       <div className="status-bar" style={{ background: 'transparent', position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20, paddingTop: 14 }}>
-        <span className="status-time" style={{ color: 'white' }}>9:41</span>
+        <div style={{ width: 40 }} />
         <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>Reels</div>
         <div style={{ fontSize: 13, color: 'white' }}>🔍</div>
       </div>

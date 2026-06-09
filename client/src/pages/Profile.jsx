@@ -35,7 +35,7 @@ export default function Profile() {
   return (
     <div className="screen active">
       <div className="status-bar">
-        <span className="status-time">9:41</span>
+        <div style={{ width: 40 }} />
         <div style={{ display: 'flex', gap: 10 }}>
           <span style={{ cursor: 'pointer' }} onClick={() => navigate('/menu')}>⚙️</span>
         </div>

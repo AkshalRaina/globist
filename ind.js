@@ -694,12 +694,8 @@
                             <!-- ============ SCREEN 1: SPLASH ============ -->
                             <div class="screen active" id="screen-splash">
                                 <div class="status-bar" style="background:transparent;position:absolute;top:0;left:0;right:0;z-index:10">
-                                    <span class="status-time" style="color:white">9:41</span>
-                                    <div class="status-icons">
-                                        <svg viewBox="0 0 16 12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="white" /><rect x="4.5" y="2" width="3" height="10" rx="1" fill="white" /><rect x="9" y="0" width="3" height="12" rx="1" fill="white" /><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="rgba(255,255,255,.4)" /></svg>
-                                        <svg viewBox="0 0 16 12" fill="none"><path d="M8 3C10.5 3 12.7 4.1 14.2 5.8L15.5 4.3C13.6 2.3 11 1 8 1S2.4 2.3.5 4.3L1.8 5.8C3.3 4.1 5.5 3 8 3Z" fill="white" /><path d="M8 6C9.6 6 11 6.7 12 7.8L13.3 6.3C12 4.9 10.1 4 8 4S4 4.9 2.7 6.3L4 7.8C5 6.7 6.4 6 8 6Z" fill="white" /><circle cx="8" cy="10" r="1.5" fill="white" /></svg>
-                                        <svg viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" /><rect x="2" y="2" width="16" height="8" rx="2" fill="white" /><path d="M23 4v4a2 2 0 000-4z" fill="white" /></svg>
-                                    </div>
+                                    <div style="width: 40px"></div>
+                                    
                                 </div>
                                 <div class="splash-bg">
                                     <div class="splash-mountain"></div>
@@ -784,7 +780,7 @@
 
                             <!-- ============ SCREEN 3: HOME ============ -->
                             <div class="screen" id="screen-home">
-                                <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons">📶 🔋</div></div>
+                                <div class="status-bar"><div style="width: 40px"></div></div>
                                 <div class="home-topbar">
                                     <div class="home-logo">
                                         <div class="home-logo-icon">⚡</div>
@@ -928,7 +924,7 @@
                             <!-- ============ SCREEN 4: REELS ============ -->
                             <div class="screen" id="screen-reels" style="background:#000;position:relative">
                                 <div class="status-bar" style="background:transparent;position:absolute;top:0;left:0;right:0;z-index:20;padding-top:14px">
-                                    <span class="status-time" style="color:white">9:41</span>
+                                    <div style="width: 40px"></div>
                                     <div style="font-size:15px;font-weight:700;color:white">Reels</div>
                                     <div style="font-size:13px;color:white">🔍</div>
                                 </div>
@@ -1010,7 +1006,7 @@
 
                             <!-- ============ SCREEN 5: EXPLORE ============ -->
                             <div class="screen" id="screen-explore">
-                                <div class="status-bar"><span class="status-time">9:41</span><div style="display:flex;gap:10px"><span>🔍</span><span>🔔</span></div></div>
+                                <div class="status-bar"><div style="width: 40px"></div><div style="display:flex;gap:10px"><span>🔍</span><span>🔔</span></div></div>
                                 <div class="scroll-area">
                                     <div class="px-20 mb-12">
                                         <div class="h2 mb-8">Explore</div>
@@ -1108,7 +1104,7 @@
                             <!-- ============ SCREEN 6: REGION ============ -->
                             <div class="screen" id="screen-region">
                                 <div class="status-bar" style="position:absolute;top:0;left:0;right:0;z-index:10;background:transparent">
-                                    <span class="status-time" style="color:white">9:41</span>
+                                    <div style="width: 40px"></div>
                                     <div style="display:flex;gap:10px"><span style="color:white">🔍</span><span style="color:white">⊞</span></div>
                                 </div>
                                 <button class="back-btn" onclick="showScreen('explore')">‹</button>
@@ -1307,7 +1303,7 @@
 
                             <!-- ============ SCREEN 8: BOOKING FLOW ============ -->
                             <div class="screen" id="screen-booking">
-                                <div class="status-bar"><span class="status-time">9:41</span><div style="display:flex;gap:10px"><button onclick="showScreen('tripdetail')" style="background:none;border:none;font-size:20px;cursor:pointer">✕</button></div></div>
+                                <div class="status-bar"><div style="width: 40px"></div><div style="display:flex;gap:10px"><button onclick="showScreen('tripdetail')" style="background:none;border:none;font-size:20px;cursor:pointer">✕</button></div></div>
                                 <div class="scroll-area">
                                     <div style="padding:4px 20px 16px">
                                         <div class="h3 mb-4">Book Your Trip</div>
@@ -1425,7 +1421,7 @@
 
                             <!-- ============ SCREEN 9: POST REEL ============ -->
                             <div class="screen" id="screen-postreal">
-                                <div class="status-bar"><span class="status-time">9:41</span><div style="font-size:14px;font-weight:700;color:var(--text1)">✕</div></div>
+                                <div class="status-bar"><div style="width: 40px"></div><div style="font-size:14px;font-weight:700;color:var(--text1)">✕</div></div>
                                 <div style="padding:0 20px 12px;border-bottom:1px solid var(--gray1)">
                                     <div class="h3">Post Your Trip Reel 🎬</div>
                                     <div class="body2">Share your experience · Tag agency · Earn points</div>
@@ -1509,7 +1505,7 @@
 
                             <!-- ============ SCREEN 10: PROFILE ============ -->
                             <div class="screen" id="screen-profile">
-                                <div class="status-bar"><span class="status-time">9:41</span><div style="display:flex;gap:10px"><span>⚙️</span></div></div>
+                                <div class="status-bar"><div style="width: 40px"></div><div style="display:flex;gap:10px"><span>⚙️</span></div></div>
                                 <div class="scroll-area">
                                     <div class="profile-hero">
                                         <div class="profile-avatar-wrap">
@@ -1593,7 +1589,7 @@
 
                             <!-- ============ SCREEN 11: MY TRIPS ============ -->
                             <div class="screen" id="screen-mytrips">
-                                <div class="status-bar"><span class="status-time">9:41</span><div style="display:flex;gap:10px"><span>🔍</span><span>🔔</span></div></div>
+                                <div class="status-bar"><div style="width: 40px"></div><div style="display:flex;gap:10px"><span>🔍</span><span>🔔</span></div></div>
                                 <div style="padding:4px 20px 12px;display:flex;justify-content:space-between;align-items:center">
                                     <div class="h2">My Trips</div>
                                     <div class="avatar-sm">A<div class="online-dot"></div></div>
@@ -1671,7 +1667,7 @@
 
                             <!-- ============ SCREEN 12: MENU ============ -->
                             <div class="screen" id="screen-menu">
-                                <div class="status-bar"><span class="status-time">9:41</span><button onclick="showScreen('profile')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text1)">✕</button></div>
+                                <div class="status-bar"><div style="width: 40px"></div><button onclick="showScreen('profile')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text1)">✕</button></div>
                                 <div style="padding:8px 20px 12px"><div class="h2">Menu</div></div>
                                 <div class="scroll-area">
                                     <!-- User info -->

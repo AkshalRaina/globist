@@ -37,7 +37,7 @@ export default function PostReel() {
   return (
     <div className="screen active">
       <div className="status-bar">
-        <span className="status-time">9:41</span>
+        <div style={{ width: 40 }} />
         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text1)', cursor: 'pointer' }} onClick={() => navigate(-1)}>✕</div>
       </div>
       <div style={{ padding: '0 20px 12px', borderBottom: '1px solid var(--gray1)' }}>

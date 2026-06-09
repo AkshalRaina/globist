@@ -38,24 +38,10 @@ export default function BottomNav({ variant = 'default' }) {
             className={`bnav-item${isActive ? ' active' : ''}`}
             onClick={() => navigate(item.path)}
           >
-            <span
-              style={{
-                fontSize: 22,
-                ...(isReels && !isActive ? { filter: 'brightness(10)' } : {}),
-              }}
-            >
+            <span className="bnav-icon" style={isReels && !isActive ? { filter: 'brightness(10)' } : {}}>
               {item.icon}
             </span>
-            <div
-              className="bnav-label"
-              style={{
-                color: isActive
-                  ? 'var(--yellow)'
-                  : isReels
-                  ? 'rgba(255,255,255,.7)'
-                  : undefined,
-              }}
-            >
+            <div className="bnav-label" style={isReels && !isActive ? { color: 'rgba(255,255,255,.7)' } : {}}>
               {item.label}
             </div>
           </div>

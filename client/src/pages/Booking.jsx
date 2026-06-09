@@ -96,10 +96,11 @@ export default function Booking() {
     return (
       <div className="screen active">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 28px', flex: 1 }}>
-          <div style={{ fontSize: 32, position: 'absolute', top: 80, left: 40, animation: 'bounce 1s ease' }}>🎉</div>
-          <div style={{ fontSize: 32, position: 'absolute', top: 100, right: 50, animation: 'bounce 1.2s ease' }}>✨</div>
-          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 20 }}>✓</div>
-          <div className="h2" style={{ marginBottom: 8, textAlign: 'center' }}>Booking Confirmed! 🎉</div>
+          <div className="anim-pop" style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: -1 }}>
+            <img src="https://media.giphy.com/media/l0ExhcMymdL6TrZ84/giphy.gif" alt="confetti" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
+          </div>
+          <div className="anim-pop" style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 20, boxShadow: '0 8px 24px rgba(39, 174, 96, 0.4)' }}>✓</div>
+          <div className="h2 anim-pop" style={{ marginBottom: 8, textAlign: 'center' }}>Booking Confirmed! 🎉</div>
           <div className="body2" style={{ textAlign: 'center', marginBottom: 8 }}>
             Your trip to {trip?.name || 'Himalayan High Treks'} has been confirmed.
           </div>
@@ -107,7 +108,7 @@ export default function Booking() {
             Dec {startDate} – Dec {endDate} · {adults} travelers · ₹{total.toLocaleString()}
           </div>
           <button className="btn-primary" style={{ marginBottom: 12 }} onClick={() => navigate('/my-trips')}>View My Trips</button>
-          <button className="btn-outline" onClick={() => navigate('/post-reel')}>Post a Trip Reel 🎬</button>
+          <button className="btn-outline anim-pulse" onClick={() => navigate('/post-reel')} style={{ border: '1.5px solid var(--yellow)', color: 'var(--yellow)' }}>Post a Trip Reel 🎬</button>
           <div style={{ marginTop: 16, fontSize: 12, color: 'var(--yellow)', fontWeight: 600 }}>
             💰 Earn up to ₹{Math.round(price * 0.03)} per booking by posting an affiliate reel!
           </div>
@@ -121,7 +122,7 @@ export default function Booking() {
   return (
     <div className="screen active">
       <div className="status-bar">
-        <span className="status-time">9:41</span>
+        <div style={{ width: 40 }} />
         <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>✕</button>
       </div>
       <div className="scroll-area">

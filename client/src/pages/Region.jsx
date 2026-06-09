@@ -46,7 +46,7 @@ export default function Region() {
     <div className="screen active">
       {/* Status bar */}
       <div className="status-bar" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, background: 'transparent' }}>
-        <span className="status-time" style={{ color: 'white' }}>9:41</span>
+        <div style={{ width: 40 }} />
         <div style={{ display: 'flex', gap: 10 }}><span style={{ color: 'white' }}>🔍</span></div>
       </div>
 

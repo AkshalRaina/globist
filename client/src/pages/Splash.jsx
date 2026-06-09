@@ -5,20 +5,7 @@ export default function Splash() {
 
   return (
     <div className="screen active" style={{ background: 'transparent' }}>
-      <div
-        className="status-bar"
-        style={{
-          background: 'transparent',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-        }}
-      >
-        <span className="status-time" style={{ color: 'white' }}>9:41</span>
-        <div className="status-icons" style={{ color: 'white' }}>📶 🔋</div>
-      </div>
+
       <div
         style={{
           flex: 1,
@@ -42,23 +29,24 @@ export default function Splash() {
         />
 
         {/* Content */}
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <div className="anim-pop" style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
             <div
+              className="anim-float"
               style={{
-                width: 44,
-                height: 44,
+                width: 56,
+                height: 56,
                 background: 'var(--yellow)',
-                borderRadius: 12,
+                borderRadius: 16,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 22,
+                boxShadow: '0 8px 24px rgba(245,166,35,0.4)'
               }}
             >
-              ⚡
+              <img src="https://media.giphy.com/media/l41JOUJ1M0Y7uXuvK/giphy.gif" alt="globe" style={{ width: 40, height: 40, objectFit: 'contain' }} />
             </div>
-            <div style={{ fontSize: 30, fontWeight: 800, color: 'white' }}>Globist</div>
+            <div style={{ fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: '-0.04em' }}>Globist</div>
           </div>
           <div
             style={{

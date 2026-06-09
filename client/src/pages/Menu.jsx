@@ -31,7 +31,7 @@ export default function Menu() {
   return (
     <div className="screen active">
       <div className="status-bar">
-        <span className="status-time">9:41</span>
+        <div style={{ width: 40 }} />
         <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--text1)' }}>✕</button>
       </div>
       <div style={{ padding: '8px 20px 12px' }}><div className="h2">Menu</div></div>
