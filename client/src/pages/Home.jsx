@@ -30,10 +30,10 @@ export default function Home() {
   }, []);
 
   const trendingTopics = [
-    { icon: <img src="https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" alt="pin" style={{ width: 28, height: 28 }} className="anim-float" />, name: 'Local Hidden Gems', count: '2.1M active explorers', bg: '#E6F1FB' },
-    { icon: <img src="https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif" alt="globe" style={{ width: 28, height: 28 }} className="anim-float" />, name: 'Historic Expeditions', count: '1.5M active explorers', bg: '#FEF0F0' },
-    { icon: <img src="https://media.giphy.com/media/5wWf7H0qoWaNnkZBucU/giphy.gif" alt="star" style={{ width: 32, height: 32 }} className="anim-float" />, name: 'Luxury Stays', count: '750K active explorers', bg: 'var(--yellow-light)' },
-    { icon: <span className="anim-float" style={{ display: 'inline-block' }}>🥾</span>, name: 'Treks', count: '750K active explorers', bg: '#EEEDFE' },
+    { icon: <span style={{ display: 'inline-block', fontSize: 24 }}>💎</span>, name: 'Local Hidden Gems', count: '2.1M active explorers', bg: '#E6F1FB' },
+    { icon: <span style={{ display: 'inline-block', fontSize: 24 }}>🏛️</span>, name: 'Historic Expeditions', count: '1.5M active explorers', bg: '#FEF0F0' },
+    { icon: <span style={{ display: 'inline-block', fontSize: 24 }}>🥂</span>, name: 'Luxury Stays', count: '750K active explorers', bg: 'var(--yellow-light)' },
+    { icon: <span style={{ display: 'inline-block', fontSize: 24 }}>🥾</span>, name: 'Treks', count: '750K active explorers', bg: '#EEEDFE' },
   ];
 
   const imgClass = (type) => `img-${type || 'mountain'}`;
