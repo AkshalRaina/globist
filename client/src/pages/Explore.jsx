@@ -26,6 +26,7 @@ export default function Explore() {
   const [needsPermission, setNeedsPermission] = useState(true); // Always show start button for user gesture
   const isDragging = useRef(false);
   const lastX = useRef(0);
+  const hasAbsolute = useRef(false); // Tracks if we have true earth-relative data
 
   // Smooth the heading using a framer-motion spring for buttery physics
   // Softened the spring for less jitter and more weight
@@ -42,20 +43,59 @@ export default function Explore() {
     };
   }, []);
 
+  // Standard W3C formula to extract True Compass Bearing from 3D Euler angles
+  const calculateCompassHeading = (alpha, beta, gamma) => {
+    const _x = beta * (Math.PI / 180);
+    const _y = gamma * (Math.PI / 180);
+    const _z = alpha * (Math.PI / 180);
+
+    const cX = Math.cos(_x);
+    const cY = Math.cos(_y);
+    const cZ = Math.cos(_z);
+    const sX = Math.sin(_x);
+    const sY = Math.sin(_y);
+    const sZ = Math.sin(_z);
+
+    const Vx = -cZ * sY - sZ * sX * cY;
+    const Vy = -sZ * sY + cZ * sX * cY;
+
+    // Fallback if device is perfectly flat
+    if (Vx === 0 && Vy === 0) return 360 - alpha;
+
+    let compassHeading = Math.atan(Vx / Vy);
+
+    if (Vy < 0) {
+      compassHeading += Math.PI;
+    } else if (Vx < 0) {
+      compassHeading += 2 * Math.PI;
+    }
+
+    return compassHeading * (180 / Math.PI);
+  };
+
   const handleOrientation = (event) => {
     // Do not fight the user if they are manually dragging the dial
     if (isDragging.current) return;
 
     let heading;
     
-    // iOS provides webkitCompassHeading directly
+    // iOS provides webkitCompassHeading directly (True North)
     if (event.webkitCompassHeading !== undefined) {
       heading = event.webkitCompassHeading;
     } 
-    // Android provides alpha (z-axis rotation)
-    else if (event.alpha !== null && event.alpha !== undefined) {
-      // alpha goes 0-360 counter-clockwise, compass heading is clockwise
-      heading = 360 - event.alpha;
+    // Android Absolute Orientation
+    else {
+      // Prioritize True North. If we see absolute data, block the relative fallback data.
+      if (event.absolute === true || event.type === 'deviceorientationabsolute') {
+        hasAbsolute.current = true;
+      } else if (hasAbsolute.current) {
+        return; // Ignore this relative event
+      }
+
+      if (event.alpha !== null && event.alpha !== undefined) {
+        // Run the 3D tilt compensation math
+        heading = calculateCompassHeading(event.alpha, event.beta || 0, event.gamma || 0);
+      }
     }
 
     if (heading !== undefined) {
