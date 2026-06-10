@@ -158,16 +158,6 @@ export default function Signup() {
               key={role.value}
               className={`role-card${selectedRole === role.value ? ' selected' : ''}`}
               onClick={() => setSelectedRole(role.value)}
-              style={{
-                flex: 1,
-                border: `2px solid ${selectedRole === role.value ? 'var(--yellow)' : 'var(--gray2)'}`,
-                borderRadius: 12,
-                padding: '14px 10px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                background: selectedRole === role.value ? 'var(--yellow-light)' : 'transparent',
-                transition: 'all .2s',
-              }}
             >
               <div style={{ fontSize: 24, marginBottom: 5 }}>{role.icon}</div>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>{role.name}</div>

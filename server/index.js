@@ -14,7 +14,7 @@ const reelRoutes = require('./routes/reels');
 const exploreRoutes = require('./routes/explore');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors({
@@ -46,7 +46,7 @@ async function startServer() {
   try {
     await connectDB();
     await seedDatabase();
-    
+
     app.listen(PORT, () => {
       console.log(`\n🚀 Globist API running on http://localhost:${PORT}`);
       console.log(`   Health: http://localhost:${PORT}/api/health`);
