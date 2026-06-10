@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform, useMotionValue } from 'framer-motion';
 import BottomNav from '../components/BottomNav.jsx';
 
 // Mock destinations with compass bearings (0-360 degrees) and distances
@@ -19,10 +19,13 @@ const destinations = [
 export default function Explore() {
   const navigate = useNavigate();
   
-  // Real or simulated compass heading (0 - 360)
-  const [rawHeading, setRawHeading] = useState(0);
+  // High-performance MotionValue for 60fps tracking without React re-renders
+  const rawHeading = useMotionValue(0);
+  
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [needsPermission, setNeedsPermission] = useState(false);
+  const [needsPermission, setNeedsPermission] = useState(true); // Always show start button for user gesture
+  const isDragging = useRef(false);
+  const lastX = useRef(0);
 
   // Smooth the heading using a framer-motion spring for buttery physics
   const smoothHeading = useSpring(rawHeading, { stiffness: 50, damping: 15, mass: 0.5 });
@@ -31,20 +34,17 @@ export default function Explore() {
   const dialRotation = useTransform(smoothHeading, (h) => -h);
 
   useEffect(() => {
-    // Check if device orientation requires permission (iOS 13+)
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-      setNeedsPermission(true);
-    } else {
-      // For Android or older devices, we can just start listening
-      startCompass();
-    }
-    
+    // We intentionally don't auto-start. Modern browsers require a user gesture.
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('deviceorientation', handleOrientation, true);
+      window.removeEventListener('deviceorientationabsolute', handleOrientation, true);
     };
   }, []);
 
   const handleOrientation = (event) => {
+    // Do not fight the user if they are manually dragging the dial
+    if (isDragging.current) return;
+
     let heading;
     
     // iOS provides webkitCompassHeading directly
@@ -52,33 +52,36 @@ export default function Explore() {
       heading = event.webkitCompassHeading;
     } 
     // Android provides alpha (z-axis rotation)
-    else if (event.alpha !== null) {
+    else if (event.alpha !== null && event.alpha !== undefined) {
       // alpha goes 0-360 counter-clockwise, compass heading is clockwise
       heading = 360 - event.alpha;
     }
 
     if (heading !== undefined) {
       // Normalize to 0-360
-      setRawHeading(heading % 360);
+      rawHeading.set(heading % 360);
     }
   };
 
   const requestPermissionAndStart = async () => {
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
       try {
         const response = await DeviceOrientationEvent.requestPermission();
         if (response === 'granted') {
           startCompass();
           setPermissionGranted(true);
-          setNeedsPermission(false);
         } else {
           alert('Compass permission denied. You can still swipe to rotate.');
-          setNeedsPermission(false);
         }
       } catch (e) {
         console.error(e);
       }
+    } else {
+      // Non-iOS or older devices (Android)
+      startCompass();
+      setPermissionGranted(true);
     }
+    setNeedsPermission(false);
   };
 
   const startCompass = () => {
@@ -88,11 +91,24 @@ export default function Explore() {
     window.addEventListener('deviceorientation', handleOrientation, true);
   };
 
-  // Fallback interaction: dragging to rotate the compass
-  const handleDrag = (event, info) => {
-    // Dragging horizontally changes the heading
-    const newHeading = (rawHeading - info.delta.x * 0.5 + 360) % 360;
-    setRawHeading(newHeading);
+  // Bulletproof native pointer events for manual dragging
+  const handlePointerDown = (e) => {
+    isDragging.current = true;
+    lastX.current = e.clientX || (e.touches && e.touches[0].clientX);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging.current) return;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const deltaX = clientX - lastX.current;
+    lastX.current = clientX;
+    
+    const current = rawHeading.get();
+    rawHeading.set((current - deltaX * 0.5 + 360) % 360);
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
   };
 
   // Calculate the shortest angular distance between two angles
@@ -183,11 +199,18 @@ export default function Explore() {
       </div>
 
       {/* The Central Compass Dial */}
-      <div style={{ position: 'absolute', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+      <div style={{ position: 'absolute', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 10, touchAction: 'none' }}>
         <motion.div 
           className="compass-dial-container"
           style={{ position: 'relative', bottom: 0, left: 0, transform: 'none' }}
-          onPan={handleDrag}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          onTouchStart={handlePointerDown}
+          onTouchMove={handlePointerMove}
+          onTouchEnd={handlePointerUp}
+          onTouchCancel={handlePointerUp}
         >
         {/* The rotating graphic */}
         <motion.div style={{ width: '100%', height: '100%', position: 'absolute', rotate: dialRotation }}>
