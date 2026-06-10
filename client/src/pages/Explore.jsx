@@ -67,7 +67,8 @@ export default function Explore() {
       
       // Only update if the device moved more than 3 degrees (eliminates micro-jitter)
       if (Math.abs(diff) >= 3) {
-        rawHeading.set(heading % 360);
+        // Accumulate continuously to prevent the physics engine from doing a 360 wrap-around reverse spin
+        rawHeading.set(current + diff);
       }
     }
   };
@@ -113,7 +114,8 @@ export default function Explore() {
     lastX.current = clientX;
     
     const current = rawHeading.get();
-    rawHeading.set((current - deltaX * 0.5 + 360) % 360);
+    // Accumulate continuously, do not modulo 360
+    rawHeading.set(current - deltaX * 0.5);
   };
 
   const handlePointerUp = () => {
