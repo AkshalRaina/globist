@@ -1288,3 +1288,98 @@ textarea.input { resize: none; line-height: 1.5; }
 
 .bento-title { font-size: 14px; font-weight: 800; color: var(--text1); line-height: 1.2; letter-spacing: -0.02em; }
 .bento-sub { font-size: 11px; color: var(--text3); font-weight: 600; margin-top: 4px; }
+
+/* ═══════════════════════════════════════
+   COMPASS RADAR UI
+   ═══════════════════════════════════════ */
+.radar-bg {
+  position: absolute;
+  inset: 0;
+  background-color: var(--white);
+  background-image: 
+    linear-gradient(rgba(252, 128, 25, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(252, 128, 25, 0.08) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center center;
+  z-index: 1;
+}
+
+.radar-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, var(--white) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.compass-dial-container {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 280px;
+  z-index: 10;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(252, 128, 25, 0.15), inset 0 0 0 1px rgba(252, 128, 25, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+.compass-dial-container:active { cursor: grabbing; }
+
+.compass-center {
+  width: 16px;
+  height: 16px;
+  background: var(--swiggy-orange);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(252, 128, 25, 0.3);
+  position: absolute;
+}
+
+.compass-tick {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--swiggy-orange);
+}
+
+.compass-bubble {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--swiggy-orange);
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(252, 128, 25, 0.3);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+  /* Speech bubble arrow pointing down */
+}
+.compass-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: var(--swiggy-orange) transparent transparent transparent;
+  display: block;
+  width: 0;
+}
+
+.bubble-title { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+.bubble-sub { font-size: 11px; font-weight: 600; opacity: 0.9; }
+

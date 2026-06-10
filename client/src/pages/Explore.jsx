@@ -1,86 +1,228 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import BottomNav from '../components/BottomNav.jsx';
 
-const categories = ['All', 'Treks', 'Luxury Stays', 'City Tours', 'Adventure', 'Spiritual'];
+// Mock destinations with compass bearings (0-360 degrees) and distances
+const destinations = [
+  { id: '1', name: 'Ladakh', bearing: 0, distance: '1,000 km' },
+  { id: '2', name: 'Manali', bearing: 30, distance: '550 km' },
+  { id: '3', name: 'Kasol', bearing: 45, distance: '500 km' },
+  { id: '4', name: 'Darjeeling', bearing: 90, distance: '1,400 km' },
+  { id: '5', name: 'Andaman', bearing: 135, distance: '2,500 km' },
+  { id: '6', name: 'Goa', bearing: 180, distance: '1,500 km' },
+  { id: '7', name: 'Kerala', bearing: 225, distance: '2,000 km' },
+  { id: '8', name: 'Jaipur', bearing: 270, distance: '250 km' },
+  { id: '9', name: 'Amritsar', bearing: 315, distance: '400 km' },
+];
 
 export default function Explore() {
   const navigate = useNavigate();
-  const { api } = useAuth();
-  const [regions, setRegions] = useState([]);
-  const [agencies, setAgencies] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('All');
+  
+  // Real or simulated compass heading (0 - 360)
+  const [rawHeading, setRawHeading] = useState(0);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [needsPermission, setNeedsPermission] = useState(false);
+
+  // Smooth the heading using a framer-motion spring for buttery physics
+  const smoothHeading = useSpring(rawHeading, { stiffness: 50, damping: 15, mass: 0.5 });
+  
+  // Rotate the compass dial opposite to the heading so North always points up when phone points North
+  const dialRotation = useTransform(smoothHeading, (h) => -h);
 
   useEffect(() => {
-    api.get('/regions').then(r => setRegions(r.data)).catch(() => {});
-    api.get('/agencies').then(r => setAgencies(r.data)).catch(() => {});
+    // Check if device orientation requires permission (iOS 13+)
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      setNeedsPermission(true);
+    } else {
+      // For Android or older devices, we can just start listening
+      startCompass();
+    }
+    
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+    };
   }, []);
 
-  const imgClass = (type) => `img-${type || 'mountain'}`;
+  const handleOrientation = (event) => {
+    // webkitCompassHeading is iOS, alpha is standard (but alpha is relative to Earth frame, 
+    // sometimes requires absolute true to be accurate. We use webkit or fallback to 360 - alpha)
+    let heading = event.webkitCompassHeading || (360 - event.alpha);
+    if (heading) {
+      // Normalize to 0-360
+      setRawHeading(heading % 360);
+    }
+  };
+
+  const requestPermissionAndStart = async () => {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      try {
+        const response = await DeviceOrientationEvent.requestPermission();
+        if (response === 'granted') {
+          startCompass();
+          setPermissionGranted(true);
+          setNeedsPermission(false);
+        } else {
+          alert('Compass permission denied. You can still swipe to rotate.');
+          setNeedsPermission(false);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  const startCompass = () => {
+    // Absolute device orientation if available
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    // Fallback standard device orientation
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  };
+
+  // Fallback interaction: dragging to rotate the compass
+  const handleDrag = (event, info) => {
+    // Dragging horizontally changes the heading
+    const newHeading = (rawHeading - info.delta.x * 0.5 + 360) % 360;
+    setRawHeading(newHeading);
+  };
+
+  // Calculate the shortest angular distance between two angles
+  const getRelativeAngle = (bearing, heading) => {
+    let diff = bearing - heading;
+    // Normalize difference to between -180 and 180
+    diff = ((diff + 180) % 360 + 360) % 360 - 180;
+    return diff;
+  };
 
   return (
-    <div className="screen active">
-            <div className="scroll-area">
-        <div style={{ padding: '8px 20px 0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div className="h2">Explore</div>
-            <span>🔔</span>
-          </div>
-          <div className="search-bar" style={{ margin: '0 0 12px' }}>
-            <span>🔍</span>
-            <input placeholder="Destinations, treks, stays..." />
-          </div>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-            {categories.map(cat => (
-              <div key={cat} className={`pill${activeFilter === cat ? ' active' : ''}`} onClick={() => setActiveFilter(cat)}>{cat}</div>
-            ))}
-          </div>
-        </div>
+    <div className="screen active" style={{ overflow: 'hidden', position: 'relative' }}>
+      {/* Background Grid */}
+      <div className="radar-bg" />
+      <div className="radar-overlay" />
 
-        {/* Luxury stays banner */}
-        <div
-          onClick={() => navigate(`/region/${regions[0]?._id || ''}`)}
-          style={{ margin: '12px 20px 20px', borderRadius: 16, overflow: 'hidden', height: 130, position: 'relative', cursor: 'pointer' }}
-        >
-          <div className="img-luxury" style={{ height: '100%' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)', padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            <div style={{ background: 'var(--yellow)', color: 'black', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 10, width: 'fit-content', marginBottom: 6 }}>Trending Topic</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white' }}>Hidden Luxury</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.8)' }}>Escape the ordinary in India's most exclusive retreats</div>
-          </div>
-        </div>
-
-        {/* Regions grid */}
-        <div className="section-header"><div className="h3">Featured Regions</div><div className="view-all">View All</div></div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 20px', marginBottom: 20 }}>
-          {regions.map((region, i) => (
-            <div key={region._id || i} onClick={() => navigate(`/region/${region._id}`)} style={{ borderRadius: 14, overflow: 'hidden', height: 110, position: 'relative', cursor: 'pointer' }}>
-              <div className={imgClass(region.imageType)} style={{ height: '100%' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 10 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{region.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)' }}>{region.spotCount}+ Spots</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Top rated agencies */}
-        <div className="section-header"><div className="h3">🏆 Top Rated Agencies</div></div>
-        {agencies.slice(0, 3).map((agency, i) => (
-          <div key={agency._id || i} className="trending-item" onClick={() => navigate(`/trip/${agency._id}`)}>
-            <div className={`trending-icon ${imgClass(agency.imageType)}`} style={{ width: 46, height: 46, borderRadius: 10, flexShrink: 0 }} />
-            <div className="trending-info">
-              <div className="trending-name">
-                {agency.name} {agency.isVerified && <span style={{ color: 'var(--blue)', fontSize: 10 }}>✓ Verified</span>}
-              </div>
-              <div className="trending-count">⭐ {agency.rating} · {agency.reviewCount?.toLocaleString()} reviews · {agency.location?.split(',')[1]?.trim()}</div>
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text1)' }}>₹{agency.startingPrice?.toLocaleString()}</div>
-          </div>
-        ))}
-        <div style={{ height: 20 }} />
+      {/* Top Status */}
+      <div className="status-bar" style={{ background: 'transparent', backdropFilter: 'none', zIndex: 20 }}>
+        <div style={{ width: 40 }} />
+        <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text1)' }}>Radar</div>
+        <div className="topbar-icon" style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--white)', boxShadow: '0 8px 24px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🔔</div>
       </div>
+
+      <div style={{ position: 'absolute', top: 100, left: 20, right: 20, zIndex: 10, textAlign: 'center' }}>
+        <div className="h2" style={{ color: 'var(--text1)' }}>Point your phone</div>
+        <div className="body2" style={{ color: 'var(--text3)' }}>Discover spots around you</div>
+      </div>
+
+      {/* The Destinations (Popups) */}
+      <div style={{ position: 'absolute', top: '40%', left: '50%', zIndex: 5, width: 0, height: 0 }}>
+        {destinations.map((dest) => {
+          // Calculate dynamic position based on current heading
+          // We use Framer Motion's useTransform to smoothly react to smoothHeading changes
+          const x = useTransform(smoothHeading, (h) => {
+            const relAngle = getRelativeAngle(dest.bearing, h);
+            // Convert to radians
+            const rad = relAngle * (Math.PI / 180);
+            // Radius of the circle where popups appear (in px)
+            const radius = 140; 
+            return Math.sin(rad) * radius;
+          });
+
+          const y = useTransform(smoothHeading, (h) => {
+            const relAngle = getRelativeAngle(dest.bearing, h);
+            const rad = relAngle * (Math.PI / 180);
+            const radius = 140;
+            // Negative cos because Y goes down in CSS, but we want 0 deg to go UP
+            return -Math.cos(rad) * radius;
+          });
+
+          // Scale and Opacity: Items in front (0 deg relative) are large and opaque.
+          // Items behind (>90 deg relative) shrink and fade out.
+          const scale = useTransform(smoothHeading, (h) => {
+            const relAngle = Math.abs(getRelativeAngle(dest.bearing, h));
+            if (relAngle < 40) return 1.1; // Focused
+            if (relAngle < 90) return 0.8; // Peripheral
+            return 0; // Behind you
+          });
+
+          const opacity = useTransform(smoothHeading, (h) => {
+            const relAngle = Math.abs(getRelativeAngle(dest.bearing, h));
+            if (relAngle < 60) return 1;
+            if (relAngle < 90) return 0.4;
+            return 0;
+          });
+
+          return (
+            <motion.div
+              key={dest.id}
+              className="compass-bubble"
+              style={{
+                x,
+                y,
+                scale,
+                opacity,
+                // Center the transform origin
+                translateX: '-50%',
+                translateY: '-50%',
+                pointerEvents: 'auto',
+              }}
+              onClick={() => navigate('/trip')}
+            >
+              <div className="bubble-title">{dest.name}</div>
+              <div className="bubble-sub">📍 {dest.distance}</div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* The Central Compass Dial */}
+      <motion.div 
+        className="compass-dial-container"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0}
+        onDrag={handleDrag}
+      >
+        {/* The rotating graphic */}
+        <motion.div style={{ width: '100%', height: '100%', position: 'absolute', rotate: dialRotation }}>
+          <div className="compass-tick" style={{ top: 10 }}>N</div>
+          <div className="compass-tick" style={{ top: '50%', right: 10, left: 'auto', transform: 'translateY(-50%)' }}>E</div>
+          <div className="compass-tick" style={{ bottom: 10, top: 'auto' }}>S</div>
+          <div className="compass-tick" style={{ top: '50%', left: 10, transform: 'translateY(-50%)' }}>W</div>
+          
+          {/* Decorative tick marks */}
+          {[...Array(12)].map((_, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              top: '50%', left: '50%',
+              width: 2, height: 10,
+              background: 'var(--gray2)',
+              transform: `translate(-50%, -50%) rotate(${i * 30}deg) translateY(-130px)`
+            }} />
+          ))}
+        </motion.div>
+
+        {/* Static center dot */}
+        <div className="compass-center" />
+      </motion.div>
+
+      {/* Permission Overlay for iOS */}
+      {needsPermission && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 30 }}>
+          <div style={{ fontSize: 60, marginBottom: 20 }}>🧭</div>
+          <div className="h2" style={{ textAlign: 'center', marginBottom: 10 }}>Calibrate Compass</div>
+          <div className="body2" style={{ textAlign: 'center', marginBottom: 30 }}>
+            Globist needs access to your device's orientation to show destinations around you in real-time.
+          </div>
+          <button className="btn-primary" onClick={requestPermissionAndStart}>
+            Start Radar
+          </button>
+        </div>
+      )}
+
+      {/* Desktop Helper text */}
+      <div style={{ position: 'absolute', bottom: 100, left: 0, right: 0, textAlign: 'center', fontSize: 11, color: 'var(--text3)', zIndex: 5 }}>
+        Tip: Swipe left/right on the dial to rotate manually
+      </div>
+
       <BottomNav />
     </div>
   );
