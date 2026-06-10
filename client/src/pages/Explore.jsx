@@ -45,10 +45,19 @@ export default function Explore() {
   }, []);
 
   const handleOrientation = (event) => {
-    // webkitCompassHeading is iOS, alpha is standard (but alpha is relative to Earth frame, 
-    // sometimes requires absolute true to be accurate. We use webkit or fallback to 360 - alpha)
-    let heading = event.webkitCompassHeading || (360 - event.alpha);
-    if (heading) {
+    let heading;
+    
+    // iOS provides webkitCompassHeading directly
+    if (event.webkitCompassHeading !== undefined) {
+      heading = event.webkitCompassHeading;
+    } 
+    // Android provides alpha (z-axis rotation)
+    else if (event.alpha !== null) {
+      // alpha goes 0-360 counter-clockwise, compass heading is clockwise
+      heading = 360 - event.alpha;
+    }
+
+    if (heading !== undefined) {
       // Normalize to 0-360
       setRawHeading(heading % 360);
     }
@@ -174,13 +183,12 @@ export default function Explore() {
       </div>
 
       {/* The Central Compass Dial */}
-      <motion.div 
-        className="compass-dial-container"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0}
-        onDrag={handleDrag}
-      >
+      <div style={{ position: 'absolute', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+        <motion.div 
+          className="compass-dial-container"
+          style={{ position: 'relative', bottom: 0, left: 0, transform: 'none' }}
+          onPan={handleDrag}
+        >
         {/* The rotating graphic */}
         <motion.div style={{ width: '100%', height: '100%', position: 'absolute', rotate: dialRotation }}>
           <div className="compass-tick" style={{ top: 10 }}>N</div>
@@ -202,7 +210,8 @@ export default function Explore() {
 
         {/* Static center dot */}
         <div className="compass-center" />
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* Permission Overlay for iOS */}
       {needsPermission && (
