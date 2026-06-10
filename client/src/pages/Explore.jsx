@@ -28,7 +28,8 @@ export default function Explore() {
   const lastX = useRef(0);
 
   // Smooth the heading using a framer-motion spring for buttery physics
-  const smoothHeading = useSpring(rawHeading, { stiffness: 50, damping: 15, mass: 0.5 });
+  // Softened the spring for less jitter and more weight
+  const smoothHeading = useSpring(rawHeading, { stiffness: 30, damping: 20, mass: 0.8 });
   
   // Rotate the compass dial opposite to the heading so North always points up when phone points North
   const dialRotation = useTransform(smoothHeading, (h) => -h);
@@ -58,8 +59,16 @@ export default function Explore() {
     }
 
     if (heading !== undefined) {
-      // Normalize to 0-360
-      rawHeading.set(heading % 360);
+      const current = rawHeading.get();
+      
+      // Calculate the shortest angular distance
+      let diff = heading - current;
+      diff = ((diff + 180) % 360 + 360) % 360 - 180;
+      
+      // Only update if the device moved more than 3 degrees (eliminates micro-jitter)
+      if (Math.abs(diff) >= 3) {
+        rawHeading.set(heading % 360);
+      }
     }
   };
 
