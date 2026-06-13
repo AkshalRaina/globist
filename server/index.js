@@ -12,6 +12,7 @@ const regionRoutes = require('./routes/regions');
 const bookingRoutes = require('./routes/bookings');
 const reelRoutes = require('./routes/reels');
 const exploreRoutes = require('./routes/explore');
+const tripRoutes = require('./routes/trips');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -32,6 +33,7 @@ app.use('/api/regions', regionRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reels', reelRoutes);
 app.use('/api/explore', exploreRoutes);
+app.use('/api/trips', tripRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

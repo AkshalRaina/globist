@@ -27,8 +27,16 @@ export default function Booking() {
   useEffect(() => {
     const fetchTrip = async () => {
       try {
-        // Try to get trip by ID or get first available
         if (tripId) {
+          // Try as trip ID first
+          try {
+            const res = await api.get(`/trips/${tripId}`);
+            if (res.data.trip) {
+              setTrip(res.data.trip);
+              return;
+            }
+          } catch {}
+          // Fallback: try as agency ID
           try {
             const res = await api.get(`/agencies/${tripId}`);
             if (res.data.trips?.length) setTrip(res.data.trips[0]);
