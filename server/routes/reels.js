@@ -4,30 +4,32 @@ const Reel = require('../models/Reel');
 const User = require('../models/User');
 const { auth, optionalAuth } = require('../middleware/auth');
 
-// GET /api/reels — Get reels feed (paginated)
+// GET /api/reels — Cursor-based feed (scalable infinite scroll)
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, agency } = req.query;
+    const { cursor, limit = 5, agency } = req.query;
     const filter = {};
     if (agency) filter.agency = agency;
+
+    // Cursor is a createdAt timestamp — fetch reels older than cursor
+    if (cursor) {
+      filter.createdAt = { $lt: new Date(cursor) };
+    }
 
     const reels = await Reel.find(filter)
       .populate('user', 'name explorerTier stats avatar')
       .populate('agency', 'name location startingPrice rating imageType')
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit) + 1); // Fetch one extra to determine if there's a next page
 
-    const total = await Reel.countDocuments(filter);
+    const hasMore = reels.length > parseInt(limit);
+    const results = hasMore ? reels.slice(0, -1) : reels;
+    const nextCursor = results.length > 0 ? results[results.length - 1].createdAt.toISOString() : null;
 
     res.json({
-      reels,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      reels: results,
+      nextCursor,
+      hasMore
     });
   } catch (error) {
     next(error);
