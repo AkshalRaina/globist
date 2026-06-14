@@ -12,6 +12,7 @@ const reelSchema = new mongoose.Schema({
   comments: { type: Number, default: 0 },
   shares: { type: Number, default: 0 },
   imageType: { type: String, default: 'mountain' },
+  mediaUrl: { type: String, default: '' }, // For base64 user uploads
   likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   musicTitle: { type: String, default: '' },
   creatorHandle: { type: String, default: '' },

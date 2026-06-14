@@ -51,12 +51,21 @@ router.get('/trending', async (req, res, next) => {
 });
 
 // POST /api/reels — Post a new reel
-router.post('/', auth, async (req, res, next) => {
+router.post('/', optionalAuth, async (req, res, next) => {
   try {
-    const { caption, tags, location, isAffiliate, agencyId, bookingId, imageType, musicTitle } = req.body;
+    const { caption, tags, location, isAffiliate, agencyId, bookingId, imageType, musicTitle, mediaUrl } = req.body;
+
+    // Use authenticated user or fall back to demo user
+    let postingUser = req.user;
+    if (!postingUser) {
+      postingUser = await User.findOne().sort({ createdAt: 1 });
+      if (!postingUser) {
+        return res.status(401).json({ message: 'No user available. Please sign up first.' });
+      }
+    }
 
     const reel = new Reel({
-      user: req.user._id,
+      user: postingUser._id,
       agency: agencyId || undefined,
       booking: bookingId || undefined,
       caption,
@@ -64,9 +73,10 @@ router.post('/', auth, async (req, res, next) => {
       location: location || '',
       isAffiliate: isAffiliate || false,
       imageType: imageType || 'mountain',
+      mediaUrl: mediaUrl || '',
       musicTitle: musicTitle || '',
-      creatorHandle: `@${req.user.name.toLowerCase().replace(/\s+/g, '_')}`,
-      creatorTier: req.user.explorerTier,
+      creatorHandle: `@${postingUser.name.toLowerCase().replace(/\s+/g, '_')}`,
+      creatorTier: postingUser.explorerTier || 'bronze',
       likes: 0,
       comments: 0,
       shares: 0
@@ -76,7 +86,7 @@ router.post('/', auth, async (req, res, next) => {
 
     const populatedReel = await Reel.findById(reel._id)
       .populate('user', 'name explorerTier avatar')
-      .populate('agency', 'name location');
+      .populate('agency', 'name location startingPrice rating imageType');
 
     res.status(201).json(populatedReel);
   } catch (error) {

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import BottomNav from '../components/BottomNav.jsx';
 
 export default function Reels() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { api } = useAuth();
   const [reels, setReels] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,7 +33,7 @@ export default function Reels() {
       const data = res.data;
       const newReels = data.reels || data;
       if (Array.isArray(newReels) && newReels.length > 0) {
-        setReels(prev => [...prev, ...newReels]);
+        setReels(prev => cursor ? [...prev, ...newReels] : newReels);
         setNextCursor(data.nextCursor || null);
         setHasMore(data.hasMore ?? newReels.length >= 5);
       } else {
@@ -44,8 +45,14 @@ export default function Reels() {
     setIsFetching(false);
   }, [api, isFetching]);
 
-  // Initial fetch
-  useEffect(() => { fetchReels(null); }, []);
+  // Refetch fresh data whenever the route is navigated to (location.key changes)
+  useEffect(() => {
+    setReels([]);
+    setCurrentIndex(0);
+    setNextCursor(null);
+    setHasMore(true);
+    fetchReels(null);
+  }, [location.key]);
 
   // Pre-fetch next batch when user is 2 reels from the end
   useEffect(() => {
@@ -179,7 +186,11 @@ export default function Reels() {
     const grad = bgGradients[r.imageType] || bgGradients.mountain;
     return (
       <div style={{ position: 'absolute', inset: 0, background: grad, transition: isActive ? 'none' : 'opacity 0.3s' }}>
-        <div className={`img-${r.imageType || 'mountain'}`} style={{ height: '100%', opacity: 0.55 }} />
+        {r.mediaUrl ? (
+          <img src={r.mediaUrl} alt="Reel media" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className={`img-${r.imageType || 'mountain'}`} style={{ height: '100%', opacity: 0.55 }} />
+        )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,.3) 0%, transparent 25%, transparent 50%, rgba(0,0,0,.85) 100%)' }} />
       </div>
     );

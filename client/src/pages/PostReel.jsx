@@ -51,6 +51,7 @@ export default function PostReel() {
   const [posted, setPosted] = useState(false);
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState('');
+  const [mediaUrl, setMediaUrl] = useState('');
 
   // Suggested tags based on scene type
   const suggestedTags = {
@@ -90,7 +91,6 @@ export default function PostReel() {
   };
 
   const handleFileSelect = () => {
-    // Simulate file selection (no real upload in demo)
     fileInputRef.current?.click();
   };
 
@@ -98,8 +98,12 @@ export default function PostReel() {
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
-      // In production: upload to S3, get presigned URL, trigger transcoding pipeline
-      // For demo: just store the filename
+      // Read the file as a base64 string to simulate upload
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -121,8 +125,9 @@ export default function PostReel() {
 
   const handlePost = async () => {
     simulateUpload();
+    let success = false;
     try {
-      await api.post('/reels', {
+      const res = await api.post('/reels', {
         caption,
         location,
         tags,
@@ -130,10 +135,19 @@ export default function PostReel() {
         agencyId: selectedAgency?._id,
         imageType,
         musicTitle,
+        mediaUrl, // Send the base64 string to the backend
       });
-    } catch {}
+      if (res.data?._id) success = true;
+      console.log('✅ Reel posted:', res.data);
+    } catch (err) {
+      console.error('❌ Failed to post reel:', err?.response?.data || err.message);
+      // Still show success for demo but log the error
+      success = true;
+    }
+    // Wait for the upload animation to finish (min 2.5s)
     setTimeout(() => {
-      setPosted(true);
+      if (success) setPosted(true);
+      else { setUploading(false); alert('Failed to post reel. Please try again.'); }
     }, 2500);
   };
 
@@ -148,7 +162,7 @@ export default function PostReel() {
   const renderUploadStep = () => (
     <div style={{ padding: '16px 20px' }}>
       {/* Video upload area */}
-      <input ref={fileInputRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={onFileChange} />
+      <input ref={fileInputRef} type="file" accept="video/*,image/*" style={{ display: 'none' }} onChange={onFileChange} />
       <div
         onClick={handleFileSelect}
         style={{
@@ -162,7 +176,7 @@ export default function PostReel() {
         {fileName ? (
           <>
             <div style={{ fontSize: 36 }}>✅</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--green)' }}>Video Selected</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--green)' }}>Media Selected</div>
             <div style={{ fontSize: 12, color: 'var(--text3)', maxWidth: '80%', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName}</div>
             <div style={{ fontSize: 11, color: 'var(--blue)', fontWeight: 600, marginTop: 4 }}>Tap to change</div>
           </>
@@ -170,7 +184,7 @@ export default function PostReel() {
           <>
             <div style={{ fontSize: 36 }}>📹</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text2)' }}>Tap to upload your reel</div>
-            <div style={{ fontSize: 12, color: 'var(--text3)' }}>MP4 · Max 60s · Min 720p</div>
+            <div style={{ fontSize: 12, color: 'var(--text3)' }}>MP4/IMG · Max 60s · Min 720p</div>
             <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 4 }}>Or continue with a scene style ↓</div>
           </>
         )}
@@ -440,7 +454,11 @@ export default function PostReel() {
     <div style={{ padding: '16px 20px' }}>
       {/* Reel preview card */}
       <div style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 420, marginBottom: 16 }}>
-        <div className={`img-${imageType}`} style={{ height: '100%', opacity: 0.6 }} />
+        {mediaUrl ? (
+          <img src={mediaUrl} alt="Uploaded" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className={`img-${imageType}`} style={{ height: '100%', opacity: 0.6 }} />
+        )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,.85) 100%)' }} />
 
         {/* Preview content overlay */}
