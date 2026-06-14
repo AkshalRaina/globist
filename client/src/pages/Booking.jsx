@@ -100,6 +100,12 @@ export default function Booking() {
     return 'date-cell';
   };
 
+  // Helper to format dates correctly wrapping to January
+  const formatMonthDay = (day) => {
+    if (day > 31) return `Jan ${day - 31}`;
+    return `Dec ${day}`;
+  };
+
   if (bookingComplete) {
     return (
       <div className="screen active">
@@ -113,7 +119,7 @@ export default function Booking() {
             Your trip to {trip?.name || 'Himalayan High Treks'} has been confirmed.
           </div>
           <div style={{ fontSize: 13, color: 'var(--text3)', textAlign: 'center', marginBottom: 24 }}>
-            Dec {startDate} – Dec {endDate} · {adults} travelers · ₹{total.toLocaleString()}
+            {formatMonthDay(startDate)} – {formatMonthDay(endDate)} · {adults} travelers · ₹{total.toLocaleString()}
           </div>
           <button className="btn-primary" style={{ marginBottom: 12 }} onClick={() => navigate('/my-trips')}>View My Trips</button>
           <button className="btn-outline anim-pulse" onClick={() => navigate('/post-reel')} style={{ border: '1.5px solid var(--yellow)', color: 'var(--yellow)' }}>Post a Trip Reel 🎬</button>
@@ -177,9 +183,9 @@ export default function Booking() {
             ))}
           </div>
           <div style={{ background: 'var(--yellow-light)', borderRadius: 10, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
-            <div><div style={{ fontSize: 10, color: 'var(--text3)' }}>CHECK-IN</div><div style={{ fontSize: 14, fontWeight: 700 }}>Dec {startDate}</div></div>
+            <div><div style={{ fontSize: 10, color: 'var(--text3)' }}>CHECK-IN</div><div style={{ fontSize: 14, fontWeight: 700 }}>{formatMonthDay(startDate)}</div></div>
             <div style={{ color: 'var(--gray3)' }}>→</div>
-            <div><div style={{ fontSize: 10, color: 'var(--text3)' }}>CHECK-OUT</div><div style={{ fontSize: 14, fontWeight: 700 }}>Dec {endDate}</div></div>
+            <div><div style={{ fontSize: 10, color: 'var(--text3)' }}>CHECK-OUT</div><div style={{ fontSize: 14, fontWeight: 700 }}>{formatMonthDay(endDate)}</div></div>
             <div><div style={{ fontSize: 10, color: 'var(--text3)' }}>DURATION</div><div style={{ fontSize: 14, fontWeight: 700 }}>{endDate - startDate} Days</div></div>
           </div>
         </div>
