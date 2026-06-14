@@ -68,9 +68,15 @@ export default function Reels() {
 
   // Navigate reels
   const goToReel = (newIndex) => {
-    if (newIndex < 0 || newIndex >= reels.length || isAnimating) return;
+    if (isAnimating) return;
+    if (newIndex < 0) return; // Can't go before first
+    // Loop back to beginning when reaching the end (TikTok behavior)
+    if (newIndex >= reels.length) {
+      if (hasMore && nextCursor) return; // still loading more, don't loop yet
+      newIndex = 0; // seamless loop
+    }
     setIsAnimating(true);
-    setSwipeOffset(newIndex > currentIndex ? -100 : 100);
+    setSwipeOffset(newIndex > currentIndex || (currentIndex === reels.length - 1 && newIndex === 0) ? -100 : 100);
     setTimeout(() => {
       setCurrentIndex(newIndex);
       setSwipeOffset(0);
@@ -137,7 +143,9 @@ export default function Reels() {
 
   const reel = reels[currentIndex];
   const prevReel = currentIndex > 0 ? reels[currentIndex - 1] : null;
-  const nextReel = currentIndex < reels.length - 1 ? reels[currentIndex + 1] : null;
+  const nextReel = currentIndex < reels.length - 1
+    ? reels[currentIndex + 1]
+    : (!hasMore && reels.length > 1 ? reels[0] : null); // Loop: show first reel as next
 
   if (reels.length === 0) {
     return (
@@ -184,7 +192,7 @@ export default function Reels() {
         <div style={{ fontSize: 18, fontWeight: 800, color: 'white', letterSpacing: '-0.02em' }}>Reels</div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ fontSize: 18, cursor: 'pointer' }}>🔍</span>
-          <span style={{ fontSize: 18, cursor: 'pointer' }}>📷</span>
+          <span style={{ fontSize: 18, cursor: 'pointer' }} onClick={() => navigate('/post-reel')}>📷</span>
         </div>
       </div>
 
