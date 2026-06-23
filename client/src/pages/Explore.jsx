@@ -103,6 +103,20 @@ export default function Explore() {
   const lastPointerX = useRef(0);
   const animFrameId = useRef(null);
 
+  // ── Smoothed heading via Framer Motion spring ──
+  // Tuned for a heavy, damped feel — like a real compass needle with inertia
+  const smoothHeading = useSpring(rawHeading, { stiffness: 40, damping: 25, mass: 1.2 });
+
+  // Rotate the dial graphic opposite to heading (so N always points toward real North)
+  const dialRotation = useTransform(smoothHeading, (h) => -h);
+
+  // Human-readable cardinal direction
+  const cardinalDirection = useMemo(() => {
+    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const idx = Math.round(((headingDisplay % 360) + 360) % 360 / 45) % 8;
+    return dirs[idx];
+  }, [headingDisplay]);
+
   // Sync display state periodically
   useEffect(() => {
     return rawHeading.onChange((v) => {
