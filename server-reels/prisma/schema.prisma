@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  username       String   @unique
+  profilePicUrl  String?
+  createdAt      DateTime @default(now())
+  
+  reels          Reel[]
+  likes          Like[]
+  views          View[]
+}
+
+model Reel {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  caption       String?
+  mediaUrl      String?
+  thumbnailUrl  String?
+  mediaType     String   @default("video")
+  status        String   @default("processing") // processing, published, failed
+  duration      Int?
+  likesCount    Int      @default(0)
+  commentsCount Int      @default(0)
+  viewsCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  likes         Like[]
+  views         View[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+}
+
+model Like {
+  reelId    String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  reel      Reel     @relation(fields: [reelId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([reelId, userId])
+}
+
+model View {
+  id              String   @id @default(uuid())
+  reelId          String
+  userId          String
+  watchedDuration Int?
+  createdAt       DateTime @default(now())
+
+  reel            Reel     @relation(fields: [reelId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+}
