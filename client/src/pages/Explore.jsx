@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useSpring, useTransform, useMotionValue } from 'framer-motion';
 import BottomNav from '../components/BottomNav.jsx';
+import { useCompass } from '../hooks/useCompass';
 
 // ── Destinations with true compass bearings ──
 const destinations = [
@@ -77,135 +78,42 @@ export default function Explore() {
   // ── Core heading state ──
   // We use a MotionValue so Framer Motion can drive animations without React re-renders
   const rawHeading = useMotionValue(0);
-  const [permissionGranted, setPermissionGranted] = useState(false);
-  const [needsPermission, setNeedsPermission] = useState(true);
-  const [headingDisplay, setHeadingDisplay] = useState(0);
+  
+  const { heading: trueHeading, status: compassStatus, needsPermission, requestPermission } = useCompass();
 
+  // Update rawHeading MotionValue when the hook returns a new heading
+  useEffect(() => {
+    if (trueHeading !== null) {
+      const current = rawHeading.get();
+      let diff = trueHeading - (((current % 360) + 360) % 360);
+      if (diff > 180) diff -= 360;
+      if (diff < -180) diff += 360;
+      
+      if (Math.abs(diff) >= 0.5) {
+        rawHeading.set(current + diff);
+      }
+    }
+  }, [trueHeading, rawHeading]);
+
+  // Display state derived from the MotionValue for smooth numbers
+  const [headingDisplay, setHeadingDisplay] = useState(0);
+  
   // Refs for sensor logic (no re-renders needed)
   const isDragging = useRef(false);
   const lastPointerX = useRef(0);
-  const hasAbsoluteOrientation = useRef(false);
-  const filteredHeading = useRef(0);
   const animFrameId = useRef(null);
 
-  // ── Smoothed heading via Framer Motion spring ──
-  // Tuned for a heavy, damped feel — like a real compass needle with inertia
-  const smoothHeading = useSpring(rawHeading, { stiffness: 40, damping: 25, mass: 1.2 });
-
-  // Rotate the dial graphic opposite to heading (so N always points toward real North)
-  const dialRotation = useTransform(smoothHeading, (h) => -h);
-
-  // Human-readable cardinal direction
-  const cardinalDirection = useMemo(() => {
-    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    const idx = Math.round(((headingDisplay % 360) + 360) % 360 / 45) % 8;
-    return dirs[idx];
-  }, [headingDisplay]);
-
-  // ── Sensor event handler ──
-  const handleOrientation = useCallback((event) => {
-    if (isDragging.current) return;
-
-    let heading;
-
-    // iOS Safari provides webkitCompassHeading (true north, pre-calibrated)
-    if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      heading = event.webkitCompassHeading;
-    }
-    // Android/Chrome — prefer absolute orientation events
-    else if (event.alpha !== null && event.alpha !== undefined) {
-      if (event.absolute === true || event.type === 'deviceorientationabsolute') {
-        hasAbsoluteOrientation.current = true;
-      } else if (hasAbsoluteOrientation.current) {
-        return; // Skip relative events if we have absolute
-      }
-
-      // W3C tilt-compensated compass heading formula
-      const alpha = event.alpha;
-      const beta = event.beta || 0;
-      const gamma = event.gamma || 0;
-
-      const _x = beta * Math.PI / 180;
-      const _y = gamma * Math.PI / 180;
-      const _z = alpha * Math.PI / 180;
-
-      const cX = Math.cos(_x), cY = Math.cos(_y), cZ = Math.cos(_z);
-      const sX = Math.sin(_x), sY = Math.sin(_y), sZ = Math.sin(_z);
-
-      const Vx = -cZ * sY - sZ * sX * cY;
-      const Vy = -sZ * sY + cZ * sX * cY;
-
-      if (Vx === 0 && Vy === 0) {
-        heading = 360 - alpha;
-      } else {
-        let compassH = Math.atan2(Vx, Vy);
-        if (compassH < 0) compassH += 2 * Math.PI;
-        heading = compassH * 180 / Math.PI;
-      }
-    }
-
-    if (heading === undefined) return;
-
-    // Apply low-pass filter to eliminate sensor jitter
-    filteredHeading.current = filterAngle(heading, filteredHeading.current, 0.15);
-
-    // Update the MotionValue using continuous accumulation
-    // This prevents the spring from doing a 359° -> 1° reverse spin
-    const current = rawHeading.get();
-    let diff = filteredHeading.current - (((current % 360) + 360) % 360);
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-
-    if (Math.abs(diff) >= 1.5) {
-      rawHeading.set(current + diff);
-    }
-
-    // Update display heading (throttled via rAF)
-    if (!animFrameId.current) {
-      animFrameId.current = requestAnimationFrame(() => {
-        setHeadingDisplay(Math.round(((rawHeading.get() % 360) + 360) % 360));
-        animFrameId.current = null;
-      });
-    }
-  }, [rawHeading]);
-
-  // ── Start compass sensors ──
-  const startCompass = useCallback(() => {
-    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-    window.addEventListener('deviceorientation', handleOrientation, true);
-  }, [handleOrientation]);
-
-  // ── Permission flow ──
-  const requestPermissionAndStart = useCallback(async () => {
-    if (typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
-      try {
-        const response = await DeviceOrientationEvent.requestPermission();
-        if (response === 'granted') {
-          startCompass();
-          setPermissionGranted(true);
-        } else {
-          alert('Compass permission denied. You can still swipe to rotate.');
-        }
-      } catch (e) {
-        console.error('Permission error:', e);
-      }
-    } else {
-      // Android or older browsers — no permission needed
-      startCompass();
-      setPermissionGranted(true);
-    }
-    setNeedsPermission(false);
-  }, [startCompass]);
-
-  // ── Cleanup on unmount ──
+  // Sync display state periodically
   useEffect(() => {
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation, true);
-      window.removeEventListener('deviceorientationabsolute', handleOrientation, true);
-      if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
-    };
-  }, [handleOrientation]);
+    return rawHeading.onChange((v) => {
+      if (!animFrameId.current) {
+        animFrameId.current = requestAnimationFrame(() => {
+          setHeadingDisplay(Math.round(((v % 360) + 360) % 360));
+          animFrameId.current = null;
+        });
+      }
+    });
+  }, [rawHeading]);
 
   // ── Pointer/touch drag handlers ──
   // We only use pointer events (not touch events) to prevent double-firing on mobile
@@ -329,7 +237,7 @@ export default function Explore() {
           <div className="body2" style={{ textAlign: 'center', marginBottom: 30, maxWidth: 280 }}>
             Globist needs access to your device's orientation to show destinations around you in real-time.
           </div>
-          <button className="btn-primary" onClick={requestPermissionAndStart}>
+          <button className="btn-primary" onClick={requestPermission}>
             Start Radar
           </button>
           <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 16, textAlign: 'center' }}>
