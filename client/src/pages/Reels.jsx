@@ -579,7 +579,9 @@ export default function Reels() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 48, height: 48, borderRadius: '50%', background: '#2a2a2a',
             color: 'white', border: 'none', cursor: 'pointer',
-            transition: 'background 0.2s'
+            opacity: currentIndex > 0 ? 1 : 0,
+            pointerEvents: currentIndex > 0 ? 'auto' : 'none',
+            transition: 'background 0.2s, opacity 0.3s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.background = '#444'}
           onMouseLeave={(e) => e.currentTarget.style.background = '#2a2a2a'}
@@ -592,7 +594,9 @@ export default function Reels() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: 48, height: 48, borderRadius: '50%', background: '#2a2a2a',
             color: 'white', border: 'none', cursor: 'pointer',
-            transition: 'background 0.2s'
+            opacity: currentIndex < reels.length - 1 ? 1 : 0,
+            pointerEvents: currentIndex < reels.length - 1 ? 'auto' : 'none',
+            transition: 'background 0.2s, opacity 0.3s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.background = '#444'}
           onMouseLeave={(e) => e.currentTarget.style.background = '#2a2a2a'}
